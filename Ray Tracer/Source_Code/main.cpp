@@ -26,11 +26,11 @@ int ViewportWidth = 1;
 int ViewportHeight = 1; 
 
 // Canvas Dims
-int CanvasWidth = 200; 
-int CanvasHeight = 200;
+int CanvasWidth = 800; 
+int CanvasHeight = 800;
 
 // These are the canvas coordinates in which the parallel processing will be mapping the color vectors to. Adjust width accordingly. 
-array<array<string, 200>, 200> map2D;
+array<array<string, 800>, 800> map2D;
 string colorToMap;
 
 Vector3D red = Vector3D(255, 0, 0);
@@ -48,14 +48,14 @@ Vector3D white = Vector3D(255, 255, 255);
 
 Vector3D BACKGROUND_COLOR = cyan;
 
-Scene makeScene(double cubeCoords){
+Scene makeScene(){
      // Create Objects
     Primitive triangle = Primitive(pink, Vector3D(0, -1, 3), Vector3D(2, 0, 4), Vector3D(-2, 0, 4), 1000, 0.0);
     Primitive triangle2 = Primitive(Vector3D(128, 0, 128), Vector3D(0, 0, 2), Vector3D(1, 2, 2), Vector3D(-1, 2, 2), 1000, 0.0);
 
     Primitive sphere1 = Primitive(Vector3D(0, -5001, 0), 5000, green, 0, 0.0);
     Primitive sphere2 = Primitive(Vector3D(2, 0, 8), 1, blue, 500, 0.3);
-    Primitive sphere3 = Primitive(Vector3D(cubeCoords, 0, 8), 1, orange, 10, 0.4);
+    Primitive sphere3 = Primitive(Vector3D(-2, 0, 8), 1, orange, 10, 0.4);
     Primitive sphere4 = Primitive(Vector3D(0, -1, 7), 1, red, 500, 0.2);
     Primitive sphere5 = Primitive(Vector3D(1, -1, 8), 0.5, white, 500, 0.2);
     // Primitive sphere6 = Primitive(Vector3D(1, -1, 8), 0.5, white, 500, 0.2);
@@ -167,8 +167,6 @@ void render(Scene scene, Vector3D cameraOrigin){
     }    
 }
 
-// void createPPM()
-
 int main() {
     double x_real = 0.0f; 
     double y_real = 0.0f; 
@@ -176,16 +174,14 @@ int main() {
     Vector3D cameraOrigin = Vector3D(x_real, y_real, z_real); 
 
     string fileName;
-    int count = 0;
-    for(double coord = -2.0; coord < 2; coord = coord + 0.1){
-    fileName = "Output/test/frame" + to_string(count) + ".ppm";
+    fileName = "Output/render.ppm";
     // Write the PPM header
     ofstream ppmFile(fileName);
     ppmFile << "P3\n";         // PPM file format (plain text)
     ppmFile << CanvasWidth << " " << CanvasHeight << "\n";        // Image dimensions: 3 pixels wide, 2 pixels high
     ppmFile << "255\n";        // Maximum color value (8-bit)
  
-    Scene scene = makeScene(coord);
+    Scene scene = makeScene();
     render(scene, cameraOrigin);
 
     // This nested for loop maps the map2D values to the ppm file. 
@@ -196,13 +192,6 @@ int main() {
         ppmFile << "\n";
     }
 
-    count ++;
-    }
-
-    
-
-
     cout << "DONE!" << endl;
     return 0;
-
 }

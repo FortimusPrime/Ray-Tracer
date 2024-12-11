@@ -10,21 +10,46 @@ array<Primitive, 4> buildTetrahedron(Vector3D color, Vector3D pointA, Vector3D p
     return triangles;
 }
  
-array<Primitive, 12> buildCube(Vector3D center, double width, Vector3D color){
-    int specular = 0; 
-    double reflective = 0.5;
+
+array<Primitive, 4> buildTetrahedron2(Vector3D color, Vector3D center, double width, int specular, double reflective, double angleInput){
+    Matrix3D rotationMatrix = getRotationMatrix(angleInput*1, angleInput*2, angleInput*3);
+
+    Vector3D pointA = (rotationMatrix * (Vector3D(center.getX(), center.getY(), center.getZ()-width) - center)) + center; // Tip
+    Vector3D pointB = (rotationMatrix * (Vector3D(center.getX(), center.getY()+width, center.getZ()+width) - center)) + center;
+    Vector3D pointC = (rotationMatrix * (Vector3D(center.getX()-width, center.getY()-width, center.getZ()+width) - center)) + center;
+    Vector3D pointD = (rotationMatrix * (Vector3D(center.getX()+width, center.getY()-width, center.getZ()+width) - center)) + center;
+
+    Primitive t1 = Primitive(Vector3D(255, 0, 0), pointA, pointB, pointC, specular, reflective);
+    Primitive t2 = Primitive(Vector3D(255, 255, 0), pointA, pointC, pointD, specular, reflective);
+    Primitive t3 = Primitive(Vector3D(0, 0, 255), pointA, pointD, pointB, specular, reflective);
+    Primitive t4 = Primitive(Vector3D(255, 192, 203), pointB, pointC, pointD, specular, reflective);
+
+    array<Primitive, 4> triangles = {t1, t2, t3, t4};
+    return triangles;
+}
+
+
+array<Primitive, 12> buildCube(Vector3D center, double width, Vector3D color, double angleInput){
+
+    Matrix3D rotationMatrix = getRotationMatrix(angleInput*-1, angleInput*-2, angleInput * -1.5);
+    
+    array<Vector3D, 3> transformationMatrixY;
+    int degree = 45;
+
+    int specular = 25; 
+    double reflective = 0;
 
     // Top Plane Coordinates
-    Vector3D topCornerLR = Vector3D(center.getX()-width, center.getY()+width, center.getZ()-width); // Top Left Rear Corner
-    Vector3D topCornerRR= Vector3D(center.getX()+width, center.getY()+width, center.getZ()-width); // Top Right Rear Corner
-    Vector3D topCornerRF = Vector3D(center.getX()+width, center.getY()+width, center.getZ()+width); // Top Right Front Corner
-    Vector3D topCornerLF = Vector3D(center.getX()-width, center.getY()+width, center.getZ()+width); // Top Left Front Corner
+    Vector3D topCornerLR = (rotationMatrix * (Vector3D(center.getX()-width, center.getY()+width, center.getZ()-width) - center)) + center; // Top Left Rear Corner
+    Vector3D topCornerRR = (rotationMatrix * (Vector3D(center.getX()+width, center.getY()+width, center.getZ()-width) - center)) + center; // Top Right Rear Corner
+    Vector3D topCornerRF = (rotationMatrix * (Vector3D(center.getX()+width, center.getY()+width, center.getZ()+width) - center)) + center; // Top Right Front Corner
+    Vector3D topCornerLF = (rotationMatrix * (Vector3D(center.getX()-width, center.getY()+width, center.getZ()+width) - center)) + center; // Top Left Front Corner
 
     // Lower Plane Coordinates
-    Vector3D bottomCornerLR = Vector3D(center.getX()-width, center.getY()-width, center.getZ()-width); // Bottom Left Rear Corner
-    Vector3D bottomCornerRR = Vector3D(center.getX()+width, center.getY()-width, center.getZ()-width); // Bottom Right Rear Corner
-    Vector3D bottomCornerRF = Vector3D(center.getX()+width, center.getY()-width, center.getZ()+width); // Bottom Right Front Corner
-    Vector3D bottomCornerLF = Vector3D(center.getX()-width, center.getY()-width, center.getZ()+width); // Bottom Left Front Corner
+    Vector3D bottomCornerLR = (rotationMatrix * (Vector3D(center.getX()-width, center.getY()-width, center.getZ()-width) - center)) + center; // Bottom Left Rear Corner
+    Vector3D bottomCornerRR = (rotationMatrix * (Vector3D(center.getX()+width, center.getY()-width, center.getZ()-width) - center)) + center; // Bottom Right Rear Corner
+    Vector3D bottomCornerRF = (rotationMatrix * (Vector3D(center.getX()+width, center.getY()-width, center.getZ()+width) - center)) + center; // Bottom Right Front Corner
+    Vector3D bottomCornerLF = (rotationMatrix * (Vector3D(center.getX()-width, center.getY()-width, center.getZ()+width) - center)) + center; // Bottom Left Front Corner
 
     // Top Triangles
     Primitive t1 = Primitive(color, topCornerLR, topCornerRR, topCornerLF, specular, reflective);

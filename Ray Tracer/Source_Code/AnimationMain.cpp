@@ -11,6 +11,7 @@
 #include "../Linear_Algebra/linearAlgebraFunctions.h"
 #include "../Objects/Primitive.h"
 #include "../Linear_Algebra/Vector3D.h"
+#include "../Linear_Algebra/Matrix3D.h"
 #include "../Objects/Scene.h"
 #include "../Objects/derivedObjects.h"
 #include "../Ray-Tracing/RayTracingFunctions.h"
@@ -26,11 +27,11 @@ int ViewportWidth = 1;
 int ViewportHeight = 1; 
 
 // Canvas Dims
-int CanvasWidth = 200; 
-int CanvasHeight = 200;
+int CanvasWidth = 800; 
+int CanvasHeight = 800;
 
 // These are the canvas coordinates in which the parallel processing will be mapping the color vectors to. Adjust width accordingly. 
-array<array<string, 200>, 200> map2D;
+array<array<string, 800>, 800> map2D;
 string colorToMap;
 
 Vector3D red = Vector3D(255, 0, 0);
@@ -48,73 +49,33 @@ Vector3D white = Vector3D(255, 255, 255);
 
 Vector3D BACKGROUND_COLOR = cyan;
 
-Scene makeScene(double cubeCoords){
+// 0, 1, 8 is the center of the circle
+
+
+Scene makeScene(Vector3D coords1, Vector3D coords2, Vector3D coords3, double angleInput){
      // Create Objects
-    Primitive triangle = Primitive(pink, Vector3D(0, -1, 3), Vector3D(2, 0, 4), Vector3D(-2, 0, 4), 1000, 0.0);
-    Primitive triangle2 = Primitive(Vector3D(128, 0, 128), Vector3D(0, 0, 2), Vector3D(1, 2, 2), Vector3D(-1, 2, 2), 1000, 0.0);
+    Primitive ground_sphere = Primitive(Vector3D(0, -5050, 100), 5000, green, 0, 0.0);
+    Primitive sphere = Primitive(coords1, 1, blue, 500, 0.3);
 
-    Primitive sphere1 = Primitive(Vector3D(0, -5001, 0), 5000, green, 0, 0.0);
-    Primitive sphere2 = Primitive(Vector3D(2, 0, 8), 1, blue, 500, 0.3);
-    Primitive sphere3 = Primitive(Vector3D(cubeCoords, 0, 8), 1, orange, 10, 0.4);
-    Primitive sphere4 = Primitive(Vector3D(0, -1, 7), 1, red, 500, 0.2);
-    Primitive sphere5 = Primitive(Vector3D(1, -1, 8), 0.5, white, 500, 0.2);
-    // Primitive sphere6 = Primitive(Vector3D(1, -1, 8), 0.5, white, 500, 0.2);
-    
-
-    Primitive coordSphere = Primitive(Vector3D(20, 30, 100), 10, yellow, 1000, 0);
-
-    array<Primitive, 4> tetra = buildTetrahedron(Vector3D(255, 255, 0),
-    Vector3D(0, 0, 2), // Tip: X, Z, Y
-    Vector3D(0.5, 0.5, 4), // Side Right
-    Vector3D(0.5, -0.5, 4), 
-    Vector3D(-0.5, 0, 4), 1000, 0.0); // Tip
+    array<Primitive, 4> tetra = buildTetrahedron2(Vector3D(255, 255, 0), coords3, 1, 25, 0.0, angleInput); // Tip
 
     vector<Primitive> objects; 
-    objects.push_back(sphere1);
-    objects.push_back(sphere2); 
-    objects.push_back(sphere3); 
-    objects.push_back(sphere4);
-    objects.push_back(sphere5);
-    // objects.push_back(triangle);
-    // objects.push_back(triangle2);
+    objects.push_back(ground_sphere);
+    objects.push_back(sphere); 
 
     for (int i = 0; i <= 3; i++){
         objects.push_back(tetra[i]);
     }
 
-    objects.push_back(coordSphere); 
-
-    array<Primitive, 12> cube = buildCube(Vector3D(-2, 3, 10), 1, magenta);
+    array<Primitive, 12> cube = buildCube(coords2, 0.8, red, angleInput);
     for (int i = 0; i < 12; i++){
         objects.push_back(cube[i]);
     }
 
-    int xDistance;
-    int yDistance;
-    int zDistance;
-    int R;
-    int G;
-    int B;
-    double sphereRadius;
-    Primitive newSphere;
-    for (int i = 0; i < 0; i++){
-        xDistance = generateRandomNumber(-5, 5);
-        yDistance = generateRandomNumber(0, 10);
-        zDistance = generateRandomNumber(10, 15);
-        sphereRadius = generateRandomNumber(0.5, 1);
-        R = generateRandomNumber(0, 255);
-        G = generateRandomNumber(0, 255);
-        B = generateRandomNumber(0, 255);
-        
-        newSphere = Primitive(Vector3D(xDistance, yDistance, zDistance), sphereRadius, Vector3D(R, G, B), 1000, 0.1);
-        objects.push_back(newSphere);
-    }
-
-
     Light light1 = Light("ambient", 0.2, Vector3D(0, 0, 0), Vector3D(0, 0, 0));
     Light light2 = Light("point", 0.6, Vector3D(2, 1, 0), Vector3D(0, 0, 0));
     Light light3 = Light("directional", 0.2, Vector3D(0, 0, 0), Vector3D(1, 4, 4));
-    Light light4 = Light("point", 0.6, Vector3D(3, 2, 7), Vector3D(0, 0, 0));
+    Light light4 = Light("point", 0.6, Vector3D(2, 1, 0), Vector3D(0, 0, 0));
     Light light5 = Light("point", 0.2, Vector3D(-2, 1, 0), Vector3D(0, 0, 0));
 
     vector<Light> lights;
@@ -158,49 +119,57 @@ void render(Scene scene, Vector3D cameraOrigin){
 
         }
         
-        #pragma omp critical
-        // Cout the progress if there has been a change in percentage. 
-        if (progress != prev){
-            cout << "Loading... " << progress << "% done." << endl;
-            prev = progress;
-        }
     }    
 }
 
-// void createPPM()
-
 int main() {
-    double x_real = 0.0f; 
-    double y_real = 0.0f; 
-    double z_real = 0.0f; 
-    Vector3D cameraOrigin = Vector3D(x_real, y_real, z_real); 
+    double x_real = 0.0; 
+    double y_real = 0.0; 
+    double z_real = 0; 
 
     string fileName;
     int count = 0;
-    // for(double coord = -2.0; coord < 2; coord = coord + 0.1){
-    fileName = "Output/test/frame" + to_string(count) + ".ppm";
-    // Write the PPM header
-    ofstream ppmFile(fileName);
-    ppmFile << "P3\n";         // PPM file format (plain text)
-    ppmFile << CanvasWidth << " " << CanvasHeight << "\n";        // Image dimensions: 3 pixels wide, 2 pixels high
-    ppmFile << "255\n";        // Maximum color value (8-bit)
- 
-    Scene scene = makeScene(-2);
-    render(scene, cameraOrigin);
+    array<Vector3D, 360> circle = circleCoordinates();
 
-    // This nested for loop maps the map2D values to the ppm file. 
-    for (int x = 0; x < CanvasWidth; x++){
-        for (int y = 0; y < CanvasHeight; y++){
-            ppmFile << map2D[y][x];
+    int prev = -1;
+    int progress = 0;
+    double final_frame = 360*2;
+
+    double result = 0;
+    for(int frame = 0; frame < final_frame; frame++){
+        // Calculate the depth of the camera for the tracking animation
+        result = 0.25*(360.0/(0.5*(frame + 1)));
+
+        if (frame < 360 || result > 0.7){
+            z_real = result;
         }
-        ppmFile << "\n";
-    // }
 
-    count ++;
+        cout<<z_real<<endl;
+        Vector3D cameraOrigin = Vector3D(x_real, y_real, z_real); 
+        fileName = "Output/animation/frame" + to_string(frame) + ".ppm";
+        // Write the PPM header
+        ofstream ppmFile(fileName);
+        ppmFile << "P3\n";         // PPM file format (plain text)
+        ppmFile << CanvasWidth << " " << CanvasHeight << "\n";        // Image dimensions: 3 pixels wide, 2 pixels high
+        ppmFile << "255\n";        // Maximum color value (8-bit)
+
+        Scene scene = makeScene(circle[frame % 360], circle[((int)frame + 120) % 360], circle[((int)frame + 240) % 360], frame);
+        render(scene, cameraOrigin);
+
+        // This nested for loop maps the map2D values to the ppm file. 
+        for (int x = 0; x < CanvasWidth; x++){
+            for (int y = 0; y < CanvasHeight; y++){
+                ppmFile << map2D[y][x];
+            }
+            ppmFile << "\n";
+        }
+
+        progress = int((frame/final_frame)*100);
+        if (progress != prev){
+            cout << "Loading... " << progress << "% done. Rendering frame " << frame << " of " << int(final_frame) << endl;
+            prev = progress;
+        }
     }
-
-    
-
 
     cout << "DONE!" << endl;
     return 0;

@@ -14,23 +14,7 @@ public:
 
 
     // Overloads
-    // Vector3D operator + (const Vector3D& other) const;
-    // Vector3D operator - (const Vector3D& other) const;
-    
-    
     Vector3D operator * (Vector3D vector) const;
-
-
-    // Vector3D operator * (double scalar) const;
-    // Vector3D operator / (double scalar) const;
-    // double operator * (const Vector3D& other) const;
-    // bool operator == (const Vector3D& other) const;
-
-    // // Magnitude of the vector
-    // double magnitude() const;
-
-    // // Normalize the vector
-    // Vector3D normalize() const;
 
     // Getters
     // Rows

@@ -32,9 +32,6 @@ array<Primitive, 4> buildTetrahedron2(Vector3D color, Vector3D center, double wi
 array<Primitive, 12> buildCube(Vector3D center, double width, Vector3D color, double angleInput){
 
     Matrix3D rotationMatrix = getRotationMatrix(angleInput*-1, angleInput*-2, angleInput * -1.5);
-    
-    array<Vector3D, 3> transformationMatrixY;
-    int degree = 45;
 
     int specular = 25; 
     double reflective = 0;

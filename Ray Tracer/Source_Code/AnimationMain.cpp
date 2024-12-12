@@ -27,11 +27,11 @@ int ViewportWidth = 1;
 int ViewportHeight = 1; 
 
 // Canvas Dims
-int CanvasWidth = 800; 
-int CanvasHeight = 800;
+int CanvasWidth = 200; 
+int CanvasHeight = 200;
 
 // These are the canvas coordinates in which the parallel processing will be mapping the color vectors to. Adjust width accordingly. 
-array<array<string, 800>, 800> map2D;
+array<array<string, 200>, 200> map2D;
 string colorToMap;
 
 Vector3D red = Vector3D(255, 0, 0);
@@ -90,16 +90,9 @@ Scene makeScene(Vector3D coords1, Vector3D coords2, Vector3D coords3, double ang
 }
 
 void render(Scene scene, Vector3D cameraOrigin){
-// Render scene and update on progress. 
-    int whole = CanvasWidth * CanvasHeight; 
-    double current = 0;
-    int prev = -1;
-    int progress = 0;
-
     // My idea:
         // We could have a tensor, that is a 2D matrix which would represent each point in the canvas, and it would be assigned it's index. 
         // That way, after the parallel operation, we could "paint" on the canvas 
-
     #pragma omp parallel for
     for (int x = -CanvasWidth/2; x < CanvasWidth/2; x++){
         for (int y = -CanvasHeight/2; y < CanvasHeight/2; y++){
@@ -111,14 +104,7 @@ void render(Scene scene, Vector3D cameraOrigin){
             colorToMap = to_string(int(color.getX())) + " " + to_string(int(color.getY())) + " " + to_string(int(color.getZ())) + "   "; 
             // Since values tend to go to the negatives, we add the offset to map correctly to the map2D 
             map2D[y + CanvasHeight/2][x + CanvasWidth/2] = colorToMap;
-            
-            #pragma omp atomic
-            // Increase the progress
-            current ++;
-            progress = int((current/whole)*100);
-
         }
-        
     }    
 }
 
@@ -136,7 +122,7 @@ int main() {
     double final_frame = 360*2;
 
     double result = 0;
-    for(int frame = 0; frame < final_frame; frame++){
+    for(int frame = 200; frame < final_frame; frame++){
         // Calculate the depth of the camera for the tracking animation
         result = 0.25*(360.0/(0.5*(frame + 1)));
 

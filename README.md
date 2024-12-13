@@ -27,3 +27,8 @@ _Still in passive development, but for the purposes of deliverable of final proj
 
 ---
 
+### **How to run**
+- The project is compiled using VS Code's Build Task. Navigate to Ray Tracer folder where .vscode folder is visible.
+- Run the build task with the command palette.
+- Run the executable typing ./Animation_Ray_Tracer
+This will result in a sequence of frames being rendered on Output/animation. WARNING: This program is intense on systems which may require a strong hardware to run it. 
